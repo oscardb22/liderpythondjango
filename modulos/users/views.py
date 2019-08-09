@@ -347,7 +347,7 @@ class ApiRus(CreateAPIView):
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
 
-# Movies
+# Municipio
 @authentication_classes([SessionAuthentication, BasicAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated, ModelPermission])
 class ApiLisMun(ListAPIView):
@@ -355,7 +355,7 @@ class ApiLisMun(ListAPIView):
 
     def get_queryset(self):
         qs = Municipio.objects.all()
-        nom = self.request.GET.get('nom', None)
+        nom = self.request.query_params.get('nom', None)
         if nom:
             qs = qs.filter(nombre__icontains=nom)
         return qs
@@ -364,12 +364,17 @@ class ApiLisMun(ListAPIView):
 @authentication_classes([SessionAuthentication, BasicAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated, ModelPermission])
 class ApiRegMun(CreateAPIView):
+    queryset = Municipio.objects.all()
     serializer_class = MunicipioSerializer
 
     def create(self, request, *args, **kwargs):
         serializer = self.get_serializer(data=request.data)
+        print(serializer.instance, dir(serializer.instance), flush=True)
+
         serializer.is_valid(raise_exception=True)
         self.perform_create(serializer)
+        serializer.instance.nombre = str(serializer.instance.nombre).upper()
+        serializer.instance.save()
         headers = self.get_success_headers(serializer.data)
         return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
 
@@ -377,6 +382,7 @@ class ApiRegMun(CreateAPIView):
 @authentication_classes([SessionAuthentication, BasicAuthentication, TokenAuthentication])
 @permission_classes([IsAuthenticated, ModelPermission])
 class ApiUpdMun(UpdateAPIView):
+    queryset = Municipio.objects.all()
     serializer_class = MunicipioSerializer
 
     def get_object(self):
@@ -386,11 +392,16 @@ class ApiUpdMun(UpdateAPIView):
     def update(self, request, *args, **kwargs):
         partial = kwargs.pop('partial', False)
         instance = self.get_object()
-        if instance.cre:
-            instance.cre = self.request.user
         serializer = self.get_serializer(instance, data=request.data, partial=partial)
         serializer.is_valid(raise_exception=True)
         self.perform_update(serializer)
+        serializer.instance.nombre = str(serializer.instance.nombre).upper()
+
+        if not serializer.instance.estado:
+            for reg in Region.objects.filter(municipios=serializer.instance):
+                print('----> ', reg, flush=True)
+                reg.municipios.remove(serializer.instance)
+        serializer.instance.save()
 
         if getattr(instance, '_prefetched_objects_cache', None):
             instance._prefetched_objects_cache = {}
@@ -414,3 +425,75 @@ class ApiDelMun(DestroyAPIView):
 class MunicipioDetail(RetrieveAPIView):
     queryset = Municipio.objects.all()
     serializer_class = ListMunicipioSerializer
+
+
+# Region
+@authentication_classes([SessionAuthentication, BasicAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated, ModelPermission])
+class ApiLisReg(ListAPIView):
+    serializer_class = ListRegionSerializer
+
+    def get_queryset(self):
+        qs = Region.objects.all()
+        nom = self.request.query_params.get('nom', None)
+        if nom:
+            qs = qs.filter(nombre__icontains=nom)
+        return qs
+
+
+@authentication_classes([SessionAuthentication, BasicAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated, ModelPermission])
+class ApiRegReg(CreateAPIView):
+    queryset = Region.objects.all()
+    serializer_class = RegionSerializer
+
+    def create(self, request, *args, **kwargs):
+        serializer = self.get_serializer(data=request.data)
+        serializer.is_valid(raise_exception=True)
+        self.perform_create(serializer)
+        serializer.instance.nombre = str(serializer.instance.nombre).upper()
+        serializer.instance.save()
+        headers = self.get_success_headers(serializer.data)
+        return Response(serializer.data, status=status.HTTP_201_CREATED, headers=headers)
+
+
+@authentication_classes([SessionAuthentication, BasicAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated, ModelPermission])
+class ApiUpdReg(UpdateAPIView):
+    queryset = Region.objects.all()
+    serializer_class = RegionSerializer
+
+    def get_object(self):
+        qs = Region.objects.get(pk=self.kwargs['pk'])
+        return qs
+
+    def update(self, request, *args, **kwargs):
+        partial = kwargs.pop('partial', False)
+        instance = self.get_object()
+        serializer = self.get_serializer(instance, data=request.data, partial=partial)
+        serializer.is_valid(raise_exception=True)
+        self.perform_update(serializer)
+        serializer.instance.nombre = str(serializer.instance.nombre).upper()
+        serializer.instance.save()
+        if getattr(instance, '_prefetched_objects_cache', None):
+            instance._prefetched_objects_cache = {}
+        log_actualizado(instance, self.request.user, {"fields": []})
+        return Response(serializer.data)
+
+
+@authentication_classes([SessionAuthentication, BasicAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated, ModelPermission])
+class ApiDelReg(DestroyAPIView):
+    queryset = Region.objects.all()
+    serializer_class = RegionSerializer
+
+    def get_object(self):
+        obj = get_object_or_404(Region, id=self.kwargs['pk'])
+        return obj
+
+
+@authentication_classes([SessionAuthentication, BasicAuthentication, TokenAuthentication])
+@permission_classes([IsAuthenticated, ModelPermission])
+class RegionDetail(RetrieveAPIView):
+    queryset = Region.objects.all()
+    serializer_class = ListRegionSerializer

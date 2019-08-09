@@ -4,6 +4,7 @@ from django.contrib.auth.decorators import login_required
 from .views import Login, Panel, exit
 from .views import Rus, LisMun, RegMun, UpdMun, DelMun, LisReg, RegReg, UpdReg, DelReg
 from .views import ApiLogin, ApiRus, ApiLisMun, ApiRegMun, ApiUpdMun, ApiDelMun, MunicipioDetail
+from .views import ApiLisReg, ApiRegReg, ApiUpdReg, ApiDelReg, RegionDetail, ApiLogout
 
 urlpatterns = [
     path('', Login.as_view(), name='login'),
@@ -23,20 +24,21 @@ urlpatterns = [
     path('del/<int:pk>/reg/', login_required(DelReg.as_view(), login_url=reverse_lazy('users:login')), name='del_reg'),
 
     # RESTful API
-    path('restfulapi/login/', ApiLogin, name='api_login'),
-    path('restfulapi/salir/', exit, name='api_salir'),
-    path(r'restfulapi/reg/usu/', login_required(ApiRus.as_view(), login_url=reverse_lazy('users:login')),
-         name='api_rus'),
-    # MODULOS
-    path('restfulapi/lis/mov/', login_required(ApiLisMun.as_view(), login_url=reverse_lazy('users:login')),
-         name='api_lis_mov'),
-    path('restfulapi/reg/mov/', login_required(ApiRegMun.as_view(), login_url=reverse_lazy('users:login')),
-         name='api_reg_mov'),
-    path('restfulapi/upd/<int:pk>/mov/', login_required(ApiUpdMun.as_view(), login_url=reverse_lazy('users:login')),
-         name='api_upd_mov'),
-    path('restfulapi/del/<int:pk>/mov/', login_required(ApiDelMun.as_view(), login_url=reverse_lazy('users:login')),
-         name='api_del_mov'),
-    path('restfulapi/det/<int:pk>/mov/', login_required(MunicipioDetail.as_view(), login_url=reverse_lazy('users:login')),
-         name='api_det_mov'),
-
+    path('restfulapi/login/', ApiLogin.as_view()),
+    path('restfulapi/salir/', ApiLogout.as_view()),
+    path(r'restfulapi/reg/usu/', ApiRus.as_view()),
+    # Municipio
+    path('restfulapi/lis/mun/', ApiLisMun.as_view()),
+    path('restfulapi/reg/mun/', ApiRegMun.as_view()),
+    path('restfulapi/upd/<int:pk>/mun/', ApiUpdMun.as_view()),
+    path('restfulapi/del/<int:pk>/mun/', ApiDelMun.as_view()),
+    path('restfulapi/det/<int:pk>/mun/', MunicipioDetail.as_view()),
+    # Region
+    path('restfulapi/lis/reg/', ApiLisReg.as_view()),
+    path('restfulapi/reg/reg/', ApiRegReg.as_view()),
+    path('restfulapi/upd/<int:pk>/reg/', ApiUpdReg.as_view()),
+    path('restfulapi/del/<int:pk>/reg/', ApiDelReg.as_view()),
+    path('restfulapi/det/<int:pk>/reg/', RegionDetail.as_view()),
+    # LOGICA
+    path('restfulapi/logica/<int:pk>/respuesta/', RegionDetail.as_view()),
 ]

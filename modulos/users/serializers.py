@@ -11,7 +11,7 @@ class UsersSerializer(serializers.HyperlinkedModelSerializer):
 class MunicipioSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Municipio
-        fields = ('id', 'codigo', 'nombre', 'estado')
+        fields = ('codigo', 'nombre', 'estado')
 
 
 class ListMunicipioSerializer(serializers.HyperlinkedModelSerializer):
@@ -23,10 +23,10 @@ class ListMunicipioSerializer(serializers.HyperlinkedModelSerializer):
 class RegionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Region
-        fields = ('id', 'codigo', 'nombre', 'municipios')
+        fields = ('codigo', 'nombre', 'municipios')
 
 
 class ListRegionSerializer(serializers.HyperlinkedModelSerializer):
     class Meta:
         model = Region
-        fields = ('codigo', 'nombre', 'municipios')
+        fields = ('codigo', 'nombre')
