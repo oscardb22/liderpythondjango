@@ -4,7 +4,7 @@ from django.contrib.auth.decorators import login_required
 from .views import Login, Panel, exit
 from .views import Rus, LisMun, RegMun, UpdMun, DelMun, LisReg, RegReg, UpdReg, DelReg
 from .views import ApiLogin, ApiRus, ApiLisMun, ApiRegMun, ApiUpdMun, ApiDelMun, MunicipioDetail
-from .views import ApiLisReg, ApiRegReg, ApiUpdReg, ApiDelReg, RegionDetail, ApiLogout
+from .views import ApiLisReg, ApiRegReg, ApiUpdReg, ApiDelReg, RegionDetail, ApiLogout, LogicaRespuesta
 
 urlpatterns = [
     path('', Login.as_view(), name='login'),
@@ -40,5 +40,5 @@ urlpatterns = [
     path('restfulapi/del/<int:pk>/reg/', ApiDelReg.as_view()),
     path('restfulapi/det/<int:pk>/reg/', RegionDetail.as_view()),
     # LOGICA
-    path('restfulapi/logica/<int:pk>/respuesta/', RegionDetail.as_view()),
+    path('logica/<int:entrada>/respuesta/', LogicaRespuesta.as_view()),
 ]

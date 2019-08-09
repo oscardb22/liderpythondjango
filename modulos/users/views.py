@@ -497,3 +497,21 @@ class ApiDelReg(DestroyAPIView):
 class RegionDetail(RetrieveAPIView):
     queryset = Region.objects.all()
     serializer_class = ListRegionSerializer
+
+
+class LogicaRespuesta(APIView):
+
+    def get(self, request, entrada):
+        abc = list('ABCDEFGHIJKLMNÑOPQRSTUVWXYZ')
+        if 27 >= entrada:
+            res = abc[(entrada-1)]
+        else:
+            mod = int(entrada % 27)
+            div = int(entrada/27)
+            if mod == 0:
+                res = f"{abc[div-2]}"
+            else:
+                res = f"{abc[div-1]}"
+            inx = (entrada-(div*27))
+            res = f"{res}{abc[(inx-1)]}"
+        return Response(res)
